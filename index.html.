@@ -1,143 +1,108 @@
-<!DOCTYPE html><html lang="en">
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assistance Hub Digital Online Services</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f1f5f9;
-      color: #1e293b;
-    }
-    header {
-      background: #123c69;
-      color: white;
-      text-align: center;
-      padding: 28px 15px;
-    }
-    header h1 { margin: 0 0 10px; font-size: 27px; }
-    header p { margin: 0; }
-    main {
-      max-width: 650px;
-      margin: 25px auto;
-      padding: 20px;
-    }
-    .card {
-      background: white;
-      padding: 22px;
-      border-radius: 12px;
-      box-shadow: 0 3px 12px #00000012;
-      margin-bottom: 20px;
-    }
-    h2 { color: #123c69; }
-    label {
-      display: block;
-      margin-top: 14px;
-      font-weight: bold;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border: 1px solid #cbd5e1;
-      border-radius: 7px;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 20px;
-      background: #123c69;
-      color: white;
-      border: none;
-      border-radius: 7px;
-      font-size: 17px;
-      font-weight: bold;
-    }
-    .notice {
-      background: #eff6ff;
-      padding: 12px;
-      border-radius: 7px;
-      line-height: 1.6;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: #64748b;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistance Hub Digital Online Services</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f1f5f9;color:#172033}
+header{background:#123b70;color:white;text-align:center;padding:25px 12px}
+main{max-width:450px;margin:25px auto;padding:0 15px}
+.card{background:white;padding:22px;border-radius:12px;box-shadow:0 4px 18px #0001}
+input,button{width:100%;padding:13px;margin:8px 0;box-sizing:border-box;border-radius:7px;font-size:16px}
+input{border:1px solid #cbd5e1}
+button{background:#1764b0;color:white;border:0;font-weight:bold}
+.secondary{background:#e2e8f0;color:#172033}
+.note{font-size:13px;line-height:1.5;color:#526174}
+[hidden]{display:none!important}
+footer{text-align:center;padding:20px;font-size:13px}
+</style>
 </head>
 <body>
-  <header>
-    <h1>Assistance Hub</h1>
-    <p>Digital Online Services</p>
-    <p>Reliable support for your online service needs.</p>
-  </header>  <main>
-    <section class="card">
-      <h2>Our Services</h2>
-      <p>We offer assistance with:</p>
-      <ul>
-        <li>CV writing and document formatting</li>
-        <li>Typing and data entry</li>
-        <li>Online application guidance</li>
-        <li>General digital assistance</li>
-      </ul>
-      <p class="notice">Submit your details for review. Submitting an application does not guarantee approval, employment, financial assistance, or any other benefit.</p>
-    </section><section class="card">
-  <h2>Registration Form</h2>
-  <form id="registrationForm">
-    <label for="fullname">Full name</label>
-    <input id="fullname" name="fullname" required maxlength="100">
-
-    <label for="phone">Phone number</label>
-    <input id="phone" name="phone" type="tel" required placeholder="e.g. 07XXXXXXXX">
-
-    <label for="service">Service required</label>
-    <select id="service" name="service" required>
-      <option value="">Choose a service</option>
-      <option>Typing and document formatting</option>
-      <option>CV writing</option>
-      <option>Data entry</option>
-      <option>Online application guidance</option>
-      <option>General digital assistance</option>
-    </select>
-
-    <label for="details">Tell us what help you need</label>
-    <textarea id="details" name="details" rows="4" required maxlength="1000"></textarea>
-
-    <button type="submit">Submit Application</button>
-    <p id="result" role="status"></p>
-  </form>
-</section>
-
+<header>
+<h1>Assistance Hub</h1>
+<p>Digital Online Services</p>
+<p>Registration and application support</p>
+</header>
+<main>
 <section class="card">
-  <h2>Contact Us</h2>
-  <p>Phone / WhatsApp: 0781521028</p>
-  <p>Applications are subject to review. We will explain any service charges before work begins.</p>
+<div id="auth">
+<h2>Create an account or log in</h2>
+<form id="signup">
+<input id="name" placeholder="Full name" maxlength="100" required>
+<input id="email" type="email" placeholder="Email address" required>
+<input id="password" type="password" minlength="8" placeholder="Password (minimum 8 characters)" required>
+<button type="submit">Create Account</button>
+</form>
+<button class="secondary" id="login" type="button">Log In</button>
+<button class="secondary" id="reset" type="button">Reset Password</button>
+<p class="note">Use an email address you can access. Email confirmation may be required.</p>
+</div>
+<div id="dashboard" hidden>
+<h2>Your Account</h2>
+<p id="welcome"></p>
+<p id="userEmail"></p>
+<p>Your account is active. Application approval is subject to review.</p>
+<button id="logout">Log Out</button>
+</div>
+<p id="message" role="status" aria-live="polite"></p>
 </section>
-
-  </main>  <footer>
-    © 2026 Assistance Hub Digital Online Services
-  </footer>  <script>
-    document.getElementById("registrationForm").addEventListener("submit", function(event) {
-      event.preventDefault();
-      document.getElementById("result").textContent =
-        "Your form is ready, but online submission is not yet connected. Please contact us on WhatsApp to send your application.";
-      const message = "Hello Assistance Hub, I would like to apply for your services.\nName: " +
-        document.getElementById("fullname").value +
-        "\nPhone: " + document.getElementById("phone").value +
-        "\nService: " + document.getElementById("service").value +
-        "\nDetails: " + document.getElementById("details").value;
-      const link = "https://wa.me/254781521028?text=" + encodeURIComponent(message);
-      const linkElement = document.createElement("a");
-      linkElement.href = link;
-      linkElement.target = "_blank";
-      linkElement.rel = "noopener";
-      linkElement.textContent = "Tap here to send your application on WhatsApp";
-      document.getElementById("result").appendChild(document.createElement("br"));
-      document.getElementById("result").appendChild(linkElement);
-    });
-  </script></body>
+</main>
+<footer>Assistance Hub Digital Online Services</footer>
+<script>
+const SUPABASE_URL="https://dtoffwkmgghsqocvyppw.supabase.co";
+const SUPABASE_KEY="sb_publishable_s7VV8hSG57wojUhIJln3tA_tLYvUjS0";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const message=document.getElementById("message");
+function say(text){message.textContent=text}
+async function refresh(){
+const {data,error}=await db.auth.getSession();
+if(error){say(error.message);return}
+const user=data.session?.user;
+document.getElementById("auth").hidden=!!user;
+document.getElementById("dashboard").hidden=!user;
+if(user){
+document.getElementById("welcome").textContent="Welcome, "+(user.user_metadata?.full_name||"User")+"!";
+document.getElementById("userEmail").textContent="Email: "+user.email;
+}
+}
+document.getElementById("signup").addEventListener("submit",async e=>{
+e.preventDefault();
+say("Creating account...");
+const name=document.getElementById("name").value.trim();
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value;
+const {data,error}=await db.auth.signUp({email,password,options:{data:{full_name:name}}});
+if(error){say(error.message);return}
+say(data.session?"Account created successfully.":"Please check your email to confirm your account.");
+await refresh();
+});
+document.getElementById("login").addEventListener("click",async()=>{
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value;
+if(!email||!password){say("Enter your email and password first.");return}
+say("Logging in...");
+const {error}=await db.auth.signInWithPassword({email,password});
+if(error){say(error.message);return}
+say("Login successful.");
+await refresh();
+});
+document.getElementById("reset").addEventListener("click",async()=>{
+const email=document.getElementById("email").value.trim();
+if(!email){say("Enter your email address first.");return}
+const {error}=await db.auth.resetPasswordForEmail(email);
+say(error?error.message:"If the account exists, a password reset email will be sent.");
+});
+document.getElementById("logout").addEventListener("click",async()=>{
+const {error}=await db.auth.signOut();
+if(error){say(error.message);return}
+say("Logged out.");
+await refresh();
+});
+db.auth.onAuthStateChange(()=>refresh());
+refresh();
+</script>
+</body>
 </html>
