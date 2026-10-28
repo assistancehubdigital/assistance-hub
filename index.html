@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Assistance Hub Digital Online Services provides online service information and application support.">
+<title>Assistance Hub Digital Online Services</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}
+header{background:#123b70;color:white;text-align:center;padding:28px 15px}
+header h1{margin:0 0 8px}
+header p{margin:6px}
+main{max-width:480px;margin:25px auto;padding:0 15px}
+.card{background:white;padding:22px;border-radius:14px;box-shadow:0 4px 18px #0001}
+h2{margin-top:0}
+input,button{width:100%;padding:13px;margin:8px 0;border-radius:8px;font-size:16px}
+input{border:1px solid #cbd5e1}
+button{border:0;background:#1764b0;color:white;font-weight:bold;cursor:pointer}
+.secondary{background:#e2e8f0;color:#172033}
+.note{font-size:13px;line-height:1.6;color:#526174}
+#message{line-height:1.5;overflow-wrap:anywhere}
+[hidden]{display:none!important}
+footer{text-align:center;padding:22px;font-size:13px;color:#526174}
+</style>
+</head>
+<body>
+<header>
+<h1>Assistance Hub</h1>
+<p>Digital Online Services</p>
+<p>Registration and application support</p>
+</header>
+
+<main>
+<section class="card">
+<div id="auth">
+<h2>Create an account</h2>
+<form id="signup">
+<label for="name">Full name</label>
+<input id="name" type="text" placeholder="Enter your full name" maxlength="100" required>
+
+<label for="email">Email address</label>
+<input id="email" type="email" placeholder="Enter your email" required>
+
+<label for="password">Password</label>
+<input id="password" type="password" minlength="8" placeholder="At least 8 characters" required>
+
+<button type="submit">Create Account</button>
+</form>
+
+<button class="secondary" id="login" type="button">Log In</button>
+<button class="secondary" id="reset" type="button">Reset Password</button>
+
+<p class="note">Use an email address you can access. Email confirmation may be required.</p>
+</div>
+
+<div id="dashboard" hidden>
+<h2>Your Account</h2>
+<p id="welcome"></p>
+<p id="userEmail"></p>
+<p>Your account has been created. Application review and approval are separate processes.</p>
+<h3>Application status</h3>
+<p>Not submitted for review.</p>
+<button id="logout" type="button">Log Out</button>
+</div>
+
+<p id="message" role="status" aria-live="polite"></p>
+</section>
+
+<section class="card" style="margin-top:18px">
+<h2>Our Services</h2>
+<p>Get information and assistance with online applications and digital services.</p>
+<ul>
+<li>Online application guidance</li>
+<li>Registration support</li>
+<li>General digital service information</li>
+</ul>
+<p class="note">Any application review or approval will be communicated honestly. No approval or payment is guaranteed.</p>
+</section>
+</main>
+
+<footer>
+<p>Assistance Hub Digital Online Services</p>
+<p>Use this service responsibly. Do not share your password with anyone.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/*
+  ACCOUNT SETUP REQUIRED:
+  Replace the two values below with your own Supabase
+  Project URL and publishable key.
+  Never put a secret or service_role key in this file.
+*/
+const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY";
+
+const message = document.getElementById("message");
+const auth = document.getElementById("auth");
+const dashboard = document.getElementById("dashboard");
+let db = null;
+
+function say(text) {
+  message.textContent = text;
+}
+
+function setupDatabase() {
+  if (!window.supabase ||
+      !SUPABASE_URL.startsWith("https://") ||
+      SUPABASE_KEY.startsWith("PASTE_")) {
+    say("Website is published, but account setup is not complete. Configure your Supabase project first.");
+    return false;
+  }
+  try {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return true;
+  } catch (error) {
+    say("Account service setup failed. Check your Supabase settings.");
+    return false;
+  }
+}
+
+async function refresh() {
+  if (!db) return;
+  const {data, error} = await db.auth.getSession();
+  if (error) {
+    say(error.message);
+    return;
+  }
+  const user = data.session?.user;
+  auth.hidden = !!user;
+  dashboard.hidden = !user;
+  if (user) {
+    document.getElementById("welcome").textContent =
+      "Welcome, " + (user.user_metadata?.full_name || "User") + "!";
+    document.getElementById("userEmail").textContent =
+      "Email: " + user.email;
+  }
+}
+
+document.getElementById("signup").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!db && !setupDatabase()) return;
+
+  say("Creating account...");
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  const {data, error} = await db.auth.signUp({
+    email,
+    password,
+    options: {data: {full_name: name}}
+  });
+
+  if (error) {
+    say(error.message);
+    return;
+  }
+
+  say(data.session
+    ? "Account created successfully."
+    : "Check your email to confirm your account.");
+  await refresh();
+});
+
+document.getElementById("login").addEventListener("click", async () => {
+  if (!db && !setupDatabase()) return;
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  if (!email || !password) {
+    say("Enter your email and password first.");
+    return;
+  }
+
+  say("Logging in...");
+  const {error} = await db.auth.signInWithPassword({email, password});
+  if (error) {
+    say(error.message);
+    return;
+  }
+  say("Login successful.");
+  await refresh();
+});
+
+document.getElementById("reset").addEventListener("click", async () => {
+  if (!db && !setupDatabase()) return;
+  const email = document.getElementById("email").value.trim();
+  if (!email) {
+    say("Enter your email address first.");
+    return;
+  }
+
+  const {error} = await db.auth.resetPasswordForEmail(email);
+  say(error ? error.message :
+    "If the account exists, a password reset email will be sent.");
+});
+
+document.getElementById("logout").addEventListener("click", async () => {
+  if (!db) return;
+  const {error} = await db.auth.signOut();
+  if (error) {
+    say(error.message);
+    return;
+  }
+  say("Logged out.");
+  await refresh();
+});
+
+if (setupDatabase()) {
+  db.auth.onAuthStateChange(() => refresh());
+  refresh();
+}
+</script>
+</body>
+  </html>
+  
