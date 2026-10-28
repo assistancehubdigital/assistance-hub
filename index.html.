@@ -1,84 +1,143 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Assistance Hub Digital Online Services. Submit an application and learn about available online services.">
-<title>Assistance Hub Digital Online Services</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#202b3c;line-height:1.6}
-header{background:#123b70;color:white;text-align:center;padding:30px 16px}
-header h1{margin:0;font-size:27px}
-header p{margin:8px 0 0}
-main{max-width:720px;margin:24px auto;padding:0 14px}
-.card{background:white;padding:22px;border-radius:14px;margin-bottom:18px;box-shadow:0 3px 14px #102e5010}
-h2{color:#123b70;margin-top:0}
-label{display:block;font-weight:bold;margin:13px 0 5px}
-input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:7px;font-size:16px}
-button{width:100%;padding:13px;background:#126bdf;color:white;border:0;border-radius:8px;font-size:16px;font-weight:bold;margin-top:18px}
-.note{background:#eef5ff;padding:13px;border-radius:8px}
-footer{text-align:center;padding:22px;color:#586579;font-size:14px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assistance Hub Digital Online Services</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+    header {
+      background: #123c69;
+      color: white;
+      text-align: center;
+      padding: 28px 15px;
+    }
+    header h1 { margin: 0 0 10px; font-size: 27px; }
+    header p { margin: 0; }
+    main {
+      max-width: 650px;
+      margin: 25px auto;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px #00000012;
+      margin-bottom: 20px;
+    }
+    h2 { color: #123c69; }
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      background: #123c69;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 17px;
+      font-weight: bold;
+    }
+    .notice {
+      background: #eff6ff;
+      padding: 12px;
+      border-radius: 7px;
+      line-height: 1.6;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #64748b;
+    }
+  </style>
 </head>
 <body>
-<header>
-<h1>Assistance Hub</h1>
-<p>Digital Online Services</p>
-<p>Simple, clear and reliable online assistance</p>
-</header>
-<main>
-<section class="card">
-<h2>Welcome</h2>
-<p>Explore our online assistance information and submit an application for review. Submitting an application does not guarantee qualification, employment, income or approval.</p>
-<div class="note"><strong>Important:</strong> Any registration fee must be clearly explained before payment. Do not send money until the service, fee and payment recipient have been independently verified.</div>
+  <header>
+    <h1>Assistance Hub</h1>
+    <p>Digital Online Services</p>
+    <p>Reliable support for your online service needs.</p>
+  </header>  <main>
+    <section class="card">
+      <h2>Our Services</h2>
+      <p>We offer assistance with:</p>
+      <ul>
+        <li>CV writing and document formatting</li>
+        <li>Typing and data entry</li>
+        <li>Online application guidance</li>
+        <li>General digital assistance</li>
+      </ul>
+      <p class="notice">Submit your details for review. Submitting an application does not guarantee approval, employment, financial assistance, or any other benefit.</p>
+    </section><section class="card">
+  <h2>Registration Form</h2>
+  <form id="registrationForm">
+    <label for="fullname">Full name</label>
+    <input id="fullname" name="fullname" required maxlength="100">
+
+    <label for="phone">Phone number</label>
+    <input id="phone" name="phone" type="tel" required placeholder="e.g. 07XXXXXXXX">
+
+    <label for="service">Service required</label>
+    <select id="service" name="service" required>
+      <option value="">Choose a service</option>
+      <option>Typing and document formatting</option>
+      <option>CV writing</option>
+      <option>Data entry</option>
+      <option>Online application guidance</option>
+      <option>General digital assistance</option>
+    </select>
+
+    <label for="details">Tell us what help you need</label>
+    <textarea id="details" name="details" rows="4" required maxlength="1000"></textarea>
+
+    <button type="submit">Submit Application</button>
+    <p id="result" role="status"></p>
+  </form>
 </section>
+
 <section class="card">
-<h2>Applicant Registration</h2>
-<form id="applicationForm">
-<label for="name">Full name *</label>
-<input id="name" name="name" required maxlength="100" autocomplete="name">
-<label for="email">Email address (optional)</label>
-<input id="email" name="email" type="email" autocomplete="email">
-<label for="phone">Phone number *</label>
-<input id="phone" name="phone" type="tel" required maxlength="20" autocomplete="tel">
-<label for="service">Service you are interested in *</label>
-<select id="service" name="service" required>
-<option value="">Choose a service</option>
-<option>Typing and document formatting</option>
-<option>CV and application assistance</option>
-<option>Data entry assistance</option>
-<option>General online assistance</option>
-</select>
-<label for="details">Tell us briefly what assistance you need *</label>
-<textarea id="details" name="details" rows="4" required maxlength="1000"></textarea>
-<label><input type="checkbox" required style="width:auto"> I confirm that the information provided is accurate and agree to be contacted about my application.</label>
-<button type="submit">Prepare Application</button>
-</form>
-<p id="result" role="status"></p>
-<p class="note">Privacy: This demo does not transmit or save your application to a server. Do not enter passwords, PINs or sensitive personal information.</p>
+  <h2>Contact Us</h2>
+  <p>Phone / WhatsApp: 0781521028</p>
+  <p>Applications are subject to review. We will explain any service charges before work begins.</p>
 </section>
-<section class="card">
-<h2>How qualification works</h2>
-<ol>
-<li>Complete the application form.</li>
-<li>Your application must be reviewed by an authorised person.</li>
-<li>Any decision and applicable service terms should be communicated clearly.</li>
-</ol>
-<p>No job, earnings or approval is guaranteed.</p>
-</section>
-<section class="card">
-<h2>Contact</h2>
-<p>For inquiries about services, contact the website administrator using a contact address you trust and control.</p>
-<p><strong>Registration fee:</strong> No payment is collected on this demonstration website.</p>
-</section>
-</main>
-<footer>© 2026 Assistance Hub Digital Online Services</footer>
-<script>
-document.getElementById('applicationForm').addEventListener('submit',function(e){
-e.preventDefault();
-document.getElementById('result').textContent='Your form has been checked in this browser, but it has NOT been sent or saved. Contact the administrator to arrange a secure submission method.';
-});
-</script>
-</body>
+
+  </main>  <footer>
+    © 2026 Assistance Hub Digital Online Services
+  </footer>  <script>
+    document.getElementById("registrationForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      document.getElementById("result").textContent =
+        "Your form is ready, but online submission is not yet connected. Please contact us on WhatsApp to send your application.";
+      const message = "Hello Assistance Hub, I would like to apply for your services.\nName: " +
+        document.getElementById("fullname").value +
+        "\nPhone: " + document.getElementById("phone").value +
+        "\nService: " + document.getElementById("service").value +
+        "\nDetails: " + document.getElementById("details").value;
+      const link = "https://wa.me/254781521028?text=" + encodeURIComponent(message);
+      const linkElement = document.createElement("a");
+      linkElement.href = link;
+      linkElement.target = "_blank";
+      linkElement.rel = "noopener";
+      linkElement.textContent = "Tap here to send your application on WhatsApp";
+      document.getElementById("result").appendChild(document.createElement("br"));
+      document.getElementById("result").appendChild(linkElement);
+    });
+  </script></body>
 </html>
