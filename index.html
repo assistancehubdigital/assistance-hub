@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Assistance Hub Digital Online Services">
+<title>Assistance Hub Digital Online Services</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}
+header{background:#123b70;color:white;text-align:center;padding:25px 15px}
+header h1{margin:0 0 8px}
+main{max-width:520px;margin:24px auto;padding:0 14px}
+.card{background:white;padding:20px;border-radius:12px;box-shadow:0 4px 16px #0001;margin-bottom:18px}
+h2{margin-top:0}
+label{display:block;margin-top:12px;font-weight:bold;font-size:14px}
+input,button{width:100%;padding:13px;margin-top:6px;border-radius:7px;font-size:16px}
+input{border:1px solid #cbd5e1}
+button{border:0;background:#1764b0;color:white;font-weight:bold;cursor:pointer}
+.secondary{background:#e2e8f0;color:#172033}
+.note{font-size:13px;color:#526174;line-height:1.5}
+footer{text-align:center;padding:20px;font-size:13px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+<h1>Assistance Hub</h1>
+<p>Digital Online Services</p>
+<p>Registration and application support</p>
+</header>
+
+<main>
+<section class="card">
+<div id="auth">
+<h2>Create Your Account</h2>
+<p>Enter your details to register.</p>
+
+<form id="signup">
+<label for="name">Full name *</label>
+<input id="name" type="text" maxlength="100" autocomplete="name" placeholder="Enter your full name" required>
+
+<label for="email">Email address *</label>
+<input id="email" type="email" autocomplete="email" placeholder="Enter your email address" required>
+
+<label for="phone">Phone number *</label>
+<input id="phone" type="tel" autocomplete="tel" placeholder="e.g. 0712345678" required>
+
+<label for="county">County *</label>
+<input id="county" type="text" placeholder="e.g. Bomet" required>
+
+<label for="town">Town or location *</label>
+<input id="town" type="text" placeholder="Enter your town or area" required>
+
+<label for="address">Physical address or area description *</label>
+<input id="address" type="text" maxlength="200" autocomplete="street-address" placeholder="Estate, village, or nearby landmark" required>
+
+<label for="password">Create password *</label>
+<input id="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required>
+
+<button type="submit">Create Account</button>
+</form>
+
+<button class="secondary" id="login" type="button">Log In</button>
+<button class="secondary" id="reset" type="button">Reset Password</button>
+<p class="note">Fields marked * are required. Use your own email address. Keep your password private.</p>
+</div>
+
+<div id="dashboard" hidden>
+<h2>Your Account</h2>
+<p id="welcome"></p>
+<p id="userEmail"></p>
+<p>Your account details were submitted. Application review and approval are separate processes.</p>
+<button id="logout" type="button">Log Out</button>
+</div>
+<p id="message" role="status" aria-live="polite"></p>
+</section>
+
+<section class="card">
+<h2>Our Services</h2>
+<ul>
+<li>Online application guidance</li>
+<li>Registration support</li>
+<li>Typing and document assistance</li>
+<li>General digital service information</li>
+</ul>
+<p class="note">Registration does not guarantee approval or access to financial assistance. Any fees must be clearly explained before payment.</p>
+</section>
+
+<section class="card">
+<h2>Contact Us</h2>
+<p><strong>Service:</strong> Assistance Hub Digital Online Services</p>
+<p><strong>Phone:</strong> 0781521028</p>
+<p><strong>Location:</strong> Bomet, Kenya</p>
+<p class="note">Contact us for information about our services and application process.</p>
+</section>
+</main>
+
+<footer>Assistance Hub Digital Online Services</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/*
+ACCOUNT SETUP REQUIRED:
+Add your Supabase project URL and publishable key.
+Never put a secret or service_role key in this public file.
+*/
+const SUPABASE_URL = "PASTE_YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY";
+
+const message = document.getElementById("message");
+const auth = document.getElementById("auth");
+const dashboard = document.getElementById("dashboard");
+let db = null;
+
+function say(text){message.textContent=text}
+
+function setupDatabase(){
+  if(!window.supabase ||
+     !SUPABASE_URL.startsWith("https://") ||
+     SUPABASE_KEY.startsWith("PASTE_")){
+    say("Account setup is incomplete. Connect your Supabase project to enable registration and login.");
+    return false;
+  }
+  try{
+    db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    return true;
+  }catch(e){
+    say("Unable to initialize the account service. Check your settings.");
+    return false;
+  }
+}
+
+async function refresh(){
+  if(!db)return;
+  const {data,error}=await db.auth.getSession();
+  if(error){say(error.message);return}
+  const user=data.session?.user;
+  auth.hidden=!!user;
+  dashboard.hidden=!user;
+  if(user){
+    document.getElementById("welcome").textContent=
+      "Welcome, "+(user.user_metadata?.full_name||"User")+"!";
+    document.getElementById("userEmail").textContent="Email: "+user.email;
+  }
+}
+
+document.getElementById("signup").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!db&&!setupDatabase())return;
+
+  const name=document.getElementById("name").value.trim();
+  const email=document.getElementById("email").value.trim();
+  const phone=document.getElementById("phone").value.trim();
+  const county=document.getElementById("county").value.trim();
+  const town=document.getElementById("town").value.trim();
+  const address=document.getElementById("address").value.trim();
+  const password=document.getElementById("password").value;
+
+  say("Creating account...");
+  const {data,error}=await db.auth.signUp({
+    email,
+    password,
+    options:{
+      data:{
+        full_name:name,
+        phone:phone,
+        county:county,
+        town:town,
+        physical_address:address
+      }
+    }
+  });
+
+  if(error){say(error.message);return}
+  say(data.session
+    ?"Account created successfully."
+    :"Check your email to confirm your account.");
+  await refresh();
+});
+
+document.getElementById("login").addEventListener("click",async()=>{
+  if(!db&&!setupDatabase())return;
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  if(!email||!password){say("Enter your email and password first.");return}
+  say("Logging in...");
+  const {error}=await db.auth.signInWithPassword({email,password});
+  if(error){say(error.message);return}
+  say("Login successful.");
+  await refresh();
+});
+
+document.getElementById("reset").addEventListener("click",async()=>{
+  if(!db&&!setupDatabase())return;
+  const email=document.getElementById("email").value.trim();
+  if(!email){say("Enter your email address first.");return}
+  const {error}=await db.auth.resetPasswordForEmail(email);
+  say(error?error.message:"If the account exists, a password reset email will be sent.");
+});
+
+document.getElementById("logout").addEventListener("click",async()=>{
+  if(!db)return;
+  const {error}=await db.auth.signOut();
+  if(error){say(error.message);return}
+  say("Logged out.");
+  await refresh();
+});
+
+if(setupDatabase()){
+  db.auth.onAuthStateChange(()=>refresh());
+  refresh();
+}
+</script>
+</body>
+  </html>
+  
