@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistance Hub Digital Online Services</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f2f5fa;color:#1e293b}
+header{background:#123c69;color:white;padding:24px 15px;text-align:center}
+main{max-width:540px;margin:24px auto;padding:0 14px}
+.card{background:white;padding:22px;margin-bottom:18px;border-radius:12px;box-shadow:0 3px 14px #0000000d}
+h2{color:#123c69}
+label{display:block;margin:13px 0 6px;font-weight:bold}
+input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:7px;font-size:16px}
+button{width:100%;padding:13px;margin-top:16px;border:0;border-radius:7px;background:#123c69;color:white;font-size:16px;font-weight:bold}
+.secondary{background:#475569}
+.notice{background:#eff6ff;padding:12px;border-radius:7px;line-height:1.5}
+.hidden{display:none}
+.message{overflow-wrap:anywhere;line-height:1.5}
+footer{text-align:center;padding:20px;color:#64748b}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Assistance Hub</h1>
+<p>Digital Online Services</p>
+<p>Registration, application review, and online service information.</p>
+</header>
+
+<main>
+
+<section class="card" id="registerSection">
+<h2>Create Your Account</h2>
+<p>Complete your details to register for our services.</p>
+
+<form id="registerForm">
+<label for="fullName">Full name</label>
+<input id="fullName" autocomplete="name" required>
+
+<label for="email">Email address</label>
+<input id="email" type="email" autocomplete="email" required>
+
+<label for="phone">Phone number</label>
+<input id="phone" type="tel" autocomplete="tel" required>
+
+<label for="county">County</label>
+<input id="county" value="Bomet" required>
+
+<label for="town">Town</label>
+<input id="town" value="Bomet" required>
+
+<label for="address">Physical address or area</label>
+<input id="address" value="20400" required>
+
+<label for="password">Create password</label>
+<input id="password" type="password" minlength="8" autocomplete="new-password" required>
+
+<div class="notice">
+<strong>Registration fee: KSh 350</strong>
+<p>Payment instructions must be confirmed before payment. Do not send money until official payment arrangements are available.</p>
+</div>
+
+<button type="submit" id="registerButton">Create Account</button>
+</form>
+
+<p>Already registered?</p>
+<button class="secondary" id="showLogin" type="button">Log In</button>
+<p class="message" id="registerMessage" role="status"></p>
+</section>
+
+<section class="card hidden" id="loginSection">
+<h2>Log In</h2>
+<form id="loginForm">
+<label for="loginEmail">Email address</label>
+<input id="loginEmail" type="email" required>
+
+<label for="loginPassword">Password</label>
+<input id="loginPassword" type="password" required>
+
+<button type="submit">Log In</button>
+</form>
+<button class="secondary" id="showRegister" type="button">Back to Registration</button>
+<p class="message" id="loginMessage" role="status"></p>
+</section>
+
+<section class="card hidden" id="dashboard">
+<h2>Welcome to Assistance Hub</h2>
+<p id="welcomeText"></p>
+<p>Contact support for information about available services.</p>
+<button id="logoutButton" type="button">Log Out</button>
+</section>
+
+</main>
+
+<footer>
+<p>Assistance Hub Digital Online Services</p>
+<p>Use accurate information when registering.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://dtoffwkmgghsqocvyppw.supabase.co";
+
+const SUPABASE_PUBLIC_KEY = "sb_publishable_s7VV8hSG57wojUhIJln3tA_tLYvUjS0";
+
+const SITE_URL = "https://assistancehubdigital.github.io/assistance-hub/";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLIC_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
+);
+
+const registerSection = document.getElementById("registerSection");
+const loginSection = document.getElementById("loginSection");
+const dashboard = document.getElementById("dashboard");
+
+function showSection(section) {
+  registerSection.classList.add("hidden");
+  loginSection.classList.add("hidden");
+  dashboard.classList.add("hidden");
+  section.classList.remove("hidden");
+}
+
+function welcome(user) {
+  const name = user.user_metadata?.full_name || user.email;
+  document.getElementById("welcomeText").textContent =
+    "Welcome, " + name + ".";
+  showSection(dashboard);
+}
+
+document.getElementById("showLogin").onclick = () => {
+  showSection(loginSection);
+};
+
+document.getElementById("showRegister").onclick = () => {
+  showSection(registerSection);
+};
+
+// CREATE ACCOUNT
+document.getElementById("registerForm").onsubmit = async function(e) {
+  e.preventDefault();
+
+  const msg = document.getElementById("registerMessage");
+  const btn = document.getElementById("registerButton");
+
+  btn.disabled = true;
+  msg.textContent = "Creating your account...";
+
+  try {
+    const email = document.getElementById("email").value.trim();
+    const fullName = document.getElementById("fullName").value.trim();
+
+    const {data, error} = await client.auth.signUp({
+      email: email,
+      password: document.getElementById("password").value,
+      options: {
+        emailRedirectTo: SITE_URL,
+        data: {
+          full_name: fullName,
+          phone: document.getElementById("phone").value.trim(),
+          county: document.getElementById("county").value.trim(),
+          town: document.getElementById("town").value.trim(),
+          address: document.getElementById("address").value.trim()
+        }
+      }
+    });
+
+    if (error) throw error;
+
+    if (data.session) {
+      welcome(data.user);
+    } else {
+      msg.textContent =
+        "Account created. Please open your email and confirm your address. Use the newest confirmation email.";
+    }
+
+  } catch(error) {
+    msg.textContent = "Registration failed: " + error.message;
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+// LOGIN
+document.getElementById("loginForm").onsubmit = async function(e) {
+  e.preventDefault();
+
+  const msg = document.getElementById("loginMessage");
+  msg.textContent = "Signing in...";
+
+  try {
+    const {data, error} = await client.auth.signInWithPassword({
+      email: document.getElementById("loginEmail").value.trim(),
+      password: document.getElementById("loginPassword").value
+    });
+
+    if (error) throw error;
+
+    welcome(data.user);
+
+  } catch(error) {
+    msg.textContent = "Login failed: " + error.message;
+  }
+};
+
+// HANDLE EMAIL CONFIRMATION AND SESSION
+client.auth.onAuthStateChange((event, session) => {
+  if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
+    welcome(session.user);
+  }
+});
+
+// RESTORE EXISTING LOGIN
+client.auth.getSession().then(({data, error}) => {
+  if (!error && data.session) {
+    welcome(data.session.user);
+  }
+});
+
+// LOGOUT
+document.getElementById("logoutButton").onclick = async function() {
+  const {error} = await client.auth.signOut();
+
+  if (error) {
+    alert("Logout failed: " + error.message);
+    return;
+  }
+
+  showSection(loginSection);
+};
+
+</script>
+</body>
+  </html>
+  
